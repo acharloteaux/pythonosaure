@@ -40,13 +40,17 @@ def jeudebase():
     max_dino = 10  # Nombre maximum de dinosaures
     monstre = random.randint(30, 100)  # Points de vie du premier dinosaure
     degats_bonus = 0  # Bonus de dégâts si une arme est trouvée
+    arme = None  # Nom de l'arme
     chance_loot = 5  # Pourcentage de chance initial pour looter une arme
 
     print("Un dinosaure se tient devant vous. Vous avez trois possibilités.")
     print("1. Vous échapper, 2. Attaquer, 3. Se soigner")
 
     while vie > 0 and niveau_d <= max_dino:
-        choix = input("Choisissez une action (1, 2 ou 3) : ")
+        if niveau_d >= 2:  # Ajouter l'option "ouvrir l'inventaire" à partir du niveau 2
+            print("I pour ouvrir l'inventaire")
+
+        choix = input("Choisissez une action (1, 2, 3) : ")
         
         if choix == "1":  # Fuite
             print("Vous tentez de vous échapper...")
@@ -59,16 +63,7 @@ def jeudebase():
                     break
                 monstre = random.randint(30, 100) + niveau_d * 10  # Nouveau dinosaure
 
-                # Vérifier si une arme est trouvée
-                if random.randint(1, 100) <= chance_loot:  # Probabilité actuelle
-                    print(f"Incroyable ! Vous trouvez une arme ! Vos dégâts augmentent de {ROSE}10{Fore.RESET} points.")
-                    print(f"Votre chance de trouver une arme repasse à {VERT_CLAIR}{chance_loot}%{Fore.RESET} au prochain niveau.")
-                    degats_bonus += 10
-                    chance_loot = 5  # Réinitialisation du pourcentage
-                else:
-                    chance_loot += 5  # Augmentation progressive
-                    print(f"Vous n'avez pas trouvé d'arme. Au prochain niveau, vous avez {VERT_CLAIR}{chance_loot}%{Fore.RESET} de chance de trouver une arme.")
-                continue
+                
             elif chance == 20:
                 print(f"Grâce à votre chance extraordinaire de {VERT_CLAIR}{chance}{Fore.RESET}, vous avez tué tous les dinosaures ! GG.")
                 break
@@ -94,16 +89,6 @@ def jeudebase():
                     break
                 monstre = random.randint(30, 100) + niveau_d * 10
 
-                # Vérifier si une arme est trouvée
-                if random.randint(1, 100) <= chance_loot:  # Probabilité actuelle
-                    print(f"Incroyable ! Vous trouvez une arme ! Vos dégâts augmentent de {ROSE}10{Fore.RESET} points.")
-                    degats_bonus += 10
-                    chance_loot = 5  # Réinitialisation du pourcentage
-                else:
-                    chance_loot += 5  # Augmentation progressive
-                    print(f"Vous n'avez pas trouvé d'arme. Au prochain niveau, vous avez {VERT_CLAIR}{chance_loot}%{Fore.RESET} de chance de trouver une arme.")
-                print(f"Un nouveau dinosaure de niveau {JAUNE}{niveau_d}{Fore.RESET} apparaît avec {JAUNE}{monstre}{Fore.RESET} points de vie !")
-
         elif choix == "3":  # Se soigner
             print("Vous tentez de vous soigner.")
             soin = random.randint(10, 30)
@@ -112,13 +97,25 @@ def jeudebase():
                 vie = 50
             print(f"Vous récupérez {ROUGE}{soin}{Fore.RESET} points de vie. Vie restante : {ROUGE}{vie}{Fore.RESET}")
 
-            # Le dinosaure attaque pendant le soin
-            attaque_d = random.randint(5, 15) + niveau_d
-            vie -= attaque_d
-            print(f"Pendant que vous vous soignez, le dinosaure vous attaque et inflige {ORANGE}{attaque_d}{Fore.RESET} dégâts. Vie restante : {ROUGE}{vie}{Fore.RESET}")
+        elif choix == "I" and niveau_d >= 2:  # Ouvrir l'inventaire (à partir du niveau 2)
+            print(f"Inventaire :")
+            if arme:
+                print(f" - Arme équipée : {ROSE}{arme}{Fore.RESET} (+{ROSE}{degats_bonus}{Fore.RESET} dégâts)")
+            else:
+                print(" - Aucun équipement trouvé.")
+            # Vérifier si une arme est trouvée
+            if random.randint(1, 100) <= chance_loot:  # Probabilité actuelle
+                    arme = "Épée"  # Exemple d'arme trouvée
+                    print(f"Incroyable ! Vous trouvez une arme ({ROSE}{arme}{Fore.RESET}) ! Vos dégâts augmentent de {ROSE}10{Fore.RESET} points.")
+                    degats_bonus += 10
+                    chance_loot = 5  # Réinitialisation du pourcentage
+            else:
+                    chance_loot += 5  # Augmentation progressive
+                    print(f"Vous n'avez pas trouvé d'arme. Au prochain niveau, vous avez {VERT_CLAIR}{chance_loot}%{Fore.RESET} de chance de trouver une arme.")
+            continue
 
         else:
-            print("Choix invalide. Veuillez entrer 1, 2 ou 3.")
+            print("Choix invalide. Veuillez entrer 1, 2, 3")
         
         if vie <= 0:
             print(f"{BLEU}Vous avez perdu la bataille. Le dinosaure a gagné.{Fore.RESET}")
