@@ -1,0 +1,4 @@
+root: C:\Users\Anne-LaureCH_hs10dlm\Documents\Cesi\Python 
+path: C:\Program Files\nodejs 
+arch: 64 
+proxy: none

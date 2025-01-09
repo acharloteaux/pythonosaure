@@ -1,5 +1,10 @@
+import sqlite3
 import random
 from colorama import Fore, Style, init
+
+# Connexion à la base de données
+connection = sqlite3.connect("jeu_pythonosaure.db")
+cursor = connection.cursor()
 
 # Initialisation de colorama pour Windows et toutes plateformes
 init(autoreset=True)
@@ -15,6 +20,7 @@ ROSE = Fore.MAGENTA
 BLEU_CLAIR = Fore.CYAN
 
 # Affichage initial
+prenom = input("Entrez votre prénom : ")
 print("\nAlerte! À tous nos visiteurs, un animal s'est échappé de son enclos. Veuillez évacuer Jurassic Park.")
 input("Appuyez sur Entrée pour continuer...")
 print(VERT_FONCE + r"""
@@ -34,13 +40,13 @@ print(VERT_FONCE + r"""
 """)
 
 # Fonction principale du jeu
-def jeudebase():
+def jeudebase(prenom):
     vie = 50  # Vie initiale du joueur
     niveau_d = 1  # Niveau du dinosaure
     max_dino = 10  # Nombre maximum de dinosaures
     monstre = random.randint(30, 100)  # Points de vie du premier dinosaure
     degats_bonus = 0  # Bonus de dégâts si une arme est trouvée
-    arme = None  # Nom de l'arme
+    armes = []  # Nom de l'arme
     chance_loot = 5  # Pourcentage de chance initial pour looter une arme
 
     print("Un dinosaure se tient devant vous. Vous avez trois possibilités.")
@@ -71,7 +77,7 @@ def jeudebase():
                 print(f"A cause de vos {VERT_CLAIR}{chance}{Fore.RESET} points de chance, le dinosaure vous rattrape et vous attaque !")
                 attaque_d = random.randint(5, 15)
                 vie -= attaque_d
-                print(f"Vous perdez {ROUGE}{attaque_d}{Fore.RESET} points de vie. Vie restante : {ROUGE}{vie}{Fore.RESET}")
+                print(f"Vous perdez {ROUGE}{attaque_d}{Fore.RESET} points de vie. Vie restante : {ROUGE}{vie}{Fore.RESET}/50")
 
         elif choix == "2":  # Attaque
             print("Vous attaquez le dinosaure !")
@@ -80,7 +86,7 @@ def jeudebase():
             monstre -= attaque_h
             vie -= attaque_d
             print(f"Vous infligez {ROSE}{attaque_h}{Fore.RESET} dégâts au dinosaure. Vie du monstre restante : {JAUNE}{monstre}{Fore.RESET}")
-            print(f"Le dinosaure vous inflige {ORANGE}{attaque_d}{Fore.RESET} dégâts. Vie restante : {ROUGE}{vie}{Fore.RESET}")
+            print(f"Le dinosaure vous inflige {ORANGE}{attaque_d}{Fore.RESET} dégâts. Vie restante : {ROUGE}{vie}{Fore.RESET}/50")
 
             if monstre <= 0:
                 print(f"{BLEU_CLAIR}Bravo ! Vous avez vaincu le dinosaure de niveau {JAUNE}{niveau_d}{Fore.RESET} !")
@@ -116,18 +122,41 @@ def jeudebase():
 
         else:
             print("Choix invalide. Veuillez entrer 1, 2, 3")
-        
+
+
+
         if vie <= 0:
             print(f"{BLEU}Vous avez perdu la bataille. Le dinosaure a gagné.{Fore.RESET}")
-        elif niveau_d > max_dino:
-            print(f"{BLEU_CLAIR}Félicitations ! Vous avez vaincu tous les dinosaures et gagné le jeu !{Fore.RESET}")
+
+            # Sauvegarder les données dans la base de données
+            armes_str = ", ".join(armes) if armes else "Aucune"
+            cursor.execute('''
+                INSERT INTO joueurs (nom, niveau_perdu, armes)
+                VALUES (?, ?, ?)
+            ''', (prenom, niveau_d, armes_str))
+            connection.commit()
+            print(f"Les données de {prenom} ont été sauvegardées.")
             break
 
-    print("Fin du jeu.")
+        elif niveau_d > max_dino:
+            print("Fin du jeu.")
+            print(f"{BLEU_CLAIR}Félicitations ! Vous avez vaincu tous les dinosaures et gagné le jeu !{Fore.RESET}")
+
+            # Sauvegarder les données dans la base de données
+            armes_str = ", ".join(armes) if armes else "Aucune"
+            cursor.execute('''
+                INSERT INTO joueurs (nom, niveau_perdu, armes)
+                VALUES (?, ?, ?)
+            ''', (prenom, niveau_d, armes_str))
+            connection.commit()
+            print(f"Les données de {prenom} ont été sauvegardées.")
+            break
+
+    print("Fin du jeu")
 
 # Boucle pour rejouer
 while True:
-    jeudebase()
+    jeudebase(prenom)
 
     rejouer = input("Voulez-vous rejouer ? (oui / non) : ").lower()
     if rejouer != "oui":
