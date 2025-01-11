@@ -13,7 +13,7 @@ cursor.execute('''
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nom TEXT NOT NULL,
         niveau_perdu INTEGER NOT NULL,
-        armes TEXT  -- Liste des armes trouvées, séparées par des virgules
+        arme TEXT  -- Liste des arme trouvées, séparées par des virgules
     )
 ''')
 

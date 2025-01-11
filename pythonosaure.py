@@ -41,35 +41,41 @@ print(VERT_FONCE + r"""
 
 # Fonction principale du jeu
 def jeudebase(prenom):
-    vie = 50  # Vie initiale du joueur
-    niveau_d = 1  # Niveau du dinosaure
-    max_dino = 10  # Nombre maximum de dinosaures
-    monstre = random.randint(30, 100)  # Points de vie du premier dinosaure
-    degats_bonus = 0  # Bonus de dégâts si une arme est trouvée
-    armes = []  # Nom de l'arme
-    chance_loot = 5  # Pourcentage de chance initial pour looter une arme
+    vie = 50
+    niveau_d = 1
+    max_dino = 10
+    monstre = random.randint(30, 100)
+    degats_bonus = 0
+    arme_equipé = []
+    arme = [
+        {"nom": "Épée", "degats": 10},
+        {"nom": "Hache", "degats": 15},
+        {"nom": "Arc", "degats": 8},
+        {"nom": "Lance", "degats": 7},
+        {"nom": "Bâton", "degats": 1},
+        {"nom": "Doudou", "degats": -2}
+    ]
+    chance_loot = 5
 
     print("Un dinosaure se tient devant vous. Vous avez trois possibilités.")
     print("1. Vous échapper, 2. Attaquer, 3. Se soigner")
 
     while vie > 0 and niveau_d <= max_dino:
-        if niveau_d >= 2:  # Ajouter l'option "ouvrir l'inventaire" à partir du niveau 2
-            print("I pour ouvrir l'inventaire")
+        if niveau_d >= 2:
+            print("i pour ouvrir l'inventaire")
 
         choix = input("Choisissez une action (1, 2, 3) : ")
-        
-        if choix == "1":  # Fuite
+
+        if choix == "1":
             print("Vous tentez de vous échapper...")
             chance = random.randint(1, 20)
-            if chance >= 15:  # 25% de chance de réussir
+            if chance >= 15:
                 print(f"Grâce à vos {VERT_CLAIR}{chance}{Fore.RESET} points de chance, vous avez réussi à vous échapper !")
                 print("Un autre dinosaure apparaît...")
                 niveau_d += 1
                 if niveau_d > max_dino:
                     break
-                monstre = random.randint(30, 100) + niveau_d * 10  # Nouveau dinosaure
-
-                
+                monstre = random.randint(30, 100) + niveau_d * 10
             elif chance == 20:
                 print(f"Grâce à votre chance extraordinaire de {VERT_CLAIR}{chance}{Fore.RESET}, vous avez tué tous les dinosaures ! GG.")
                 break
@@ -79,7 +85,7 @@ def jeudebase(prenom):
                 vie -= attaque_d
                 print(f"Vous perdez {ROUGE}{attaque_d}{Fore.RESET} points de vie. Vie restante : {ROUGE}{vie}{Fore.RESET}/50")
 
-        elif choix == "2":  # Attaque
+        elif choix == "2":
             print("Vous attaquez le dinosaure !")
             attaque_h = random.randint(5, 15) + degats_bonus + 5 * (niveau_d - 1)
             attaque_d = random.randint(5, 15) + niveau_d
@@ -95,41 +101,36 @@ def jeudebase(prenom):
                     break
                 monstre = random.randint(30, 100) + niveau_d * 10
 
-        elif choix == "3":  # Se soigner
+        elif choix == "3":
             print("Vous tentez de vous soigner.")
             soin = random.randint(10, 30)
             vie += soin
-            if vie > 50:  # Vie maximale
+            if vie > 50:
                 vie = 50
             print(f"Vous récupérez {ROUGE}{soin}{Fore.RESET} points de vie. Vie restante : {ROUGE}{vie}{Fore.RESET}")
 
-        elif choix == "I" and niveau_d >= 2:  # Ouvrir l'inventaire (à partir du niveau 2)
+        elif choix == "i" and niveau_d >= 2:
             print(f"Inventaire :")
-            if arme:
-                print(f" - Arme équipée : {ROSE}{arme}{Fore.RESET} (+{ROSE}{degats_bonus}{Fore.RESET} dégâts)")
+            if arme_equipé:
+                for arme in arme_equipé:
+                    print(f" - {ROSE}{arme}{Fore.RESET}")
+            if random.randint(1, 100) <= chance_loot:
+                nouvelle_arme = random.choice(arme)
+                arme_equipé.append(nouvelle_arme["nom"])
+                degats_bonus += nouvelle_arme["degats"]
+                print(f"Incroyable ! Vous trouvez une arme : {ROSE}{nouvelle_arme['nom']}{Fore.RESET} ! Vos dégâts augmentent de {ROSE}{nouvelle_arme['degats']}{Fore.RESET} points.")
+                chance_loot = 5
             else:
-                print(" - Aucun équipement trouvé.")
-            # Vérifier si une arme est trouvée
-            if random.randint(1, 100) <= chance_loot:  # Probabilité actuelle
-                    arme = "Épée"  # Exemple d'arme trouvée
-                    print(f"Incroyable ! Vous trouvez une arme ({ROSE}{arme}{Fore.RESET}) ! Vos dégâts augmentent de {ROSE}10{Fore.RESET} points.")
-                    degats_bonus += 10
-                    chance_loot = 5  # Réinitialisation du pourcentage
-            else:
-                    chance_loot += 5  # Augmentation progressive
-                    print(f"Vous n'avez pas trouvé d'arme. Au prochain niveau, vous avez {VERT_CLAIR}{chance_loot}%{Fore.RESET} de chance de trouver une arme.")
+                chance_loot += 5
+                print(f"Vous n'avez pas trouvé de nouvelle arme. Au prochain niveau, vous avez {VERT_CLAIR}{chance_loot}%{Fore.RESET} de chance de trouver une arme.")
             continue
 
         else:
-            print("Choix invalide. Veuillez entrer 1, 2, 3")
-
-
+            print("Choix invalide. Veuillez entrer 1, 2, 3 ")
 
         if vie <= 0:
             print(f"{BLEU}Vous avez perdu la bataille. Le dinosaure a gagné.{Fore.RESET}")
-
-            # Sauvegarder les données dans la base de données
-            armes_str = ", ".join(armes) if armes else "Aucune"
+            armes_str = ", ".join(arme_equipé) if arme_equipé else "Aucune"
             cursor.execute('''
                 INSERT INTO joueurs (nom, niveau_perdu, armes)
                 VALUES (?, ?, ?)
@@ -139,11 +140,8 @@ def jeudebase(prenom):
             break
 
         elif niveau_d > max_dino:
-            print("Fin du jeu.")
             print(f"{BLEU_CLAIR}Félicitations ! Vous avez vaincu tous les dinosaures et gagné le jeu !{Fore.RESET}")
-
-            # Sauvegarder les données dans la base de données
-            armes_str = ", ".join(armes) if armes else "Aucune"
+            armes_str = ", ".join(arme_equipé) if arme_equipé else "Aucune"
             cursor.execute('''
                 INSERT INTO joueurs (nom, niveau_perdu, armes)
                 VALUES (?, ?, ?)
@@ -154,10 +152,8 @@ def jeudebase(prenom):
 
     print("Fin du jeu")
 
-# Boucle pour rejouer
 while True:
     jeudebase(prenom)
-
     rejouer = input("Voulez-vous rejouer ? (oui / non) : ").lower()
     if rejouer != "oui":
         print("Merci d'avoir joué ! À bientôt.")

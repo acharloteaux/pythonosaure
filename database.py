@@ -10,6 +10,6 @@ cursor.execute('SELECT * FROM joueurs')
 joueurs = cursor.fetchall()
 
 for joueur in joueurs:
-    print(f"ID : {joueur[0]}, Nom : {joueur[1]}, Niveau atteint : {joueur[2]}, Armes : {joueur[3]}")
+    print(f"ID : {joueur[0]}, Nom : {joueur[1]}, Niveau atteint : {joueur[2]}, Arme : {joueur[3]}")
 
 connection.close()
